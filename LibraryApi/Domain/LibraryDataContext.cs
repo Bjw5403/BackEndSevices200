@@ -13,7 +13,7 @@ namespace LibraryApi.Domain
 
         }
         public virtual DbSet<Book> Books { get; set; }
-
+        public virtual DbSet<Reservation> Reservations { get; set; } // Add Migration in PMC. add-migratonm "Reservations". update-database
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Book>().Property(p => p.Title).HasMaxLength(200);
