@@ -2,6 +2,8 @@ version: "3.7"
 services:
     zookeeper:
         image: 'bitnami/zookeeper:latest'
+        networks: 
+          - my-network
         ports:
           - '2181:2181'
         environment:
@@ -19,11 +21,39 @@ services:
         depends_on:
           - zookeeper
     sql:
-        image: jeffrygonzalez/library-sql-oct2020
+        image: benwill/library-sql-oct2020:final
+        networks: 
+          - my-network
         ports:
             - 1433:1433
     redis:
         image: redis:latest
+        networks: 
+          - my-network
         ports:
             - 6379:6379
-          
+    reservationprocessor:
+        image: benwill/reservationprocessor:latest
+        networks: 
+          - my-network
+        environment: 
+            - kafka:bootstrapservers=kafka:9092
+            - kafka:groupid=reservation-consumer
+            - kafka:enableuatocommit=tue
+            - kafka:secutiyuprotocol=0
+            - kafka:autooffsetreset=0
+            - api=http://api:3000/
+    api:
+      image: benwill/libraryapi:latest
+      networks: 
+        - my-network
+      ports:
+          - 5000:80
+      environment: 
+          - connectionstrings__library=server=sql;database=books_prod;user=sa;password=TokyoJoe138!
+          - connectionStrings__redis=redis
+          - message=Hi
+          - kafka:bookstrapservers=kafka:9092
+networks:
+    my-network:
+      driver: bridge

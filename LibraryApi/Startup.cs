@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using AutoMapper;
+using Confluent.Kafka;
 using LibraryApi.Domain;
 using LibraryApi.Profiles;
 using LibraryApi.Services;
@@ -68,6 +69,12 @@ namespace LibraryApi
             });
             services.AddTransient<ICacheTheCatalog, CatalogService>();
 
+            var producerConfig = new ProducerConfig();
+
+            Configuration.Bind("kafka", producerConfig);
+            //services.AddOptions<ProducerConfig>(producerConfig)
+            services.AddSingleton<ProducerConfig>(producerConfig);
+            services.AddScoped<ILogReservations, KafkaReservationProducer>();
 
             services.AddSwaggerGen(c => {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
